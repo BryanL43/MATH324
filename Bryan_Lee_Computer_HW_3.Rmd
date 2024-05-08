@@ -1,0 +1,227 @@
+---
+  title: "MATH 324 Computer HW 3"
+  author: "Bryan Lee"
+  date: "May 7 2024"
+  output:
+  pdf_document: default
+---
+
+#Exercise 1: Based on weighting the most animals in the population, the American Angus Association reported that mature Angus cows had a mean weight of 1350 pounds with a standard deviation of 163 pounds. A research randomly measures 100 mature Angus cows.Use R commands to answers the following questions.
+
+#(a) Find the probability that the average weight of the 100 mature Angus cows is less than 1325 pounds.
+# P(X_bar < 1325) = pnorm(1325, mean, sd) where n = 100 and sd = 163/sqrt(100)
+```{r}
+pnorm(1325, 1350, 16.3)
+```
+
+#(b) Find the probability that the average weight of the 100 mature Angus cows is between 1325 and 1375
+# P(1325 < X_bar < 1375)
+```{r}
+pnorm(1375, 1350, 16.3) - pnorm(1325, 1350, 16.3)
+```
+
+#Exercise 2: The lifetime of a special type of battery is a random variable with mean 40 and standard deviation 20 hours. Assume a stockpile of 50 independent such batteries.Use R commands to answer the following questions.
+
+#(a) What is the probability that the total lifetime of the 50 batteries is less than 1900 hours?
+# P(X_bar < 1900)
+```{r}
+mean = 50 * 40
+s_d = sqrt(50) * 20
+pnorm(1900, mean, s_d)
+```
+
+#(b) What is the probability that the total lifetime of the 50 batteries is more than 2200 hours?
+# P(X_bar > 2200) = 1 - P(X_bar <= 2200)
+```{r}
+mean = 50 * 40
+s_d = sqrt(50) * 20
+1-pnorm(2200, mean, s_d)
+```
+
+#Exercise 3: The life time of a laser (in hours) is exponentially distributed with λ = 1/80. Two such lasers are operating independently. Use R commands to answer the following questions.
+
+#(a) Use a simulated sample of size 1000 to estimate the probability that the sum of the two lifetimes is greater than 100 hours.
+```{r}
+n = 1000
+lambda = 1/80
+lifetimeA = rexp(1000, lambda)
+lifetimeB = rexp(1000, lambda)
+
+sum_lifetimes = lifetimeA + lifetimeB #sum of the lifetime
+
+prob_sum_greater_than_100 = length(which(sum_lifetimes > 100)) / n #get all the lifetimes greater than 100 hrs and divide it by n to get prob
+prob_sum_greater_than_100
+```
+
+#(b) Estimate the probability that the both lasers last less than 50 hours.
+```{r}
+n = 1000
+lambda = 1/80
+count = 0
+
+for (i in 1:n) {
+  if (lifetimeA[i] < 50 & lifetimeB[i] < 50) { #if both is less than 50 hrs
+      count = count + 1
+  }
+}
+count/n #The estimated prob (empirical), should be close to theoretical one.
+(pexp(50, lambda))*(pexp(50, lambda)) # Theoretical probability that both lasers last less than 50 hours
+```
+
+#Exercise 4: Generate 500 samples, each of which is of size 5 and 50 (n=5, 50), from the following distributions:
+#I. Uniform distribution on interval (0,5)
+#II. Binomial distribution with n = 15, p = 0.2
+#III. Exponential distribution with λ = 5
+#IV. Poisson distribution with parameter µ = 2
+
+```{r}
+#Uniform distribution  on interval (0,5)
+#Sample size 5:
+unif_x_bar_list5 = rep(0,500)
+unif_x_bar_list50 = rep(0,500)
+
+for (i in 1:500) {
+  sample5 = runif(5,0,5)
+  unif_x_bar_list5[i] = mean(sample5)
+}
+mean(unif_x_bar_list5) #empirical mean (from sampling)
+expectedValue = (5 + 0)/2 #theoretical expected (a+b)/2
+expectedValue
+var(unif_x_bar_list5) #empirical variance
+sigma2 = (5 - 0)^2/12 #theoretical variance for each X_i (b-a)^2/12
+sigma2/5 #theoretical variance for xbar. Should be similar to empirical variance
+
+#Sample size 50:
+for (i in 1:500) {
+  sample50 = runif(50,0,5)
+  unif_x_bar_list50[i] = mean(sample50)
+}
+mean(unif_x_bar_list50) #empirical mean
+expectedValue = (5 + 0)/2 #theoretical expected (a+b)/2
+expectedValue
+var(unif_x_bar_list50) #empirical variance
+sigma2 = (5 - 0)^2/12 #theoretical variance for each X_i
+sigma2/50 #theoretical variance for xbar. Should be similar to empirical variance
+
+hist(unif_x_bar_list5)
+qqnorm(unif_x_bar_list5)
+hist(unif_x_bar_list50)
+qqnorm(unif_x_bar_list50)
+
+#I've found that the empirical mean and variance of the x_bar list sampling of 5 and 50 are quite close to the theoretical mean and variance. A feature to be noted is that larger sample (i.e. sample size 50 compared to 5) will have a more symmetrical histogram. The sampling of the mean also follows the CLT as the histogram resembles a "bell curve" or a normal distribution, where with large sampling will create a stronger resemblance.
+```
+
+```{r}
+#Binomial distribution with n = 15, p = 0.2
+#Sample size 5:
+n = 15
+p = 0.2
+binom_x_bar_list5 = rep(0,500)
+binom_x_bar_list50 = rep(0,500)
+
+for (i in 1:500) {
+  sample5 = rbinom(5, n, p)
+  binom_x_bar_list5[i] = mean(sample5)
+}
+mean(binom_x_bar_list5) #empirical mean (from sampling)
+expectedValue = n*p #theoretical expected
+expectedValue
+var(binom_x_bar_list5) #empirical variance
+sigma2 = n*p*(1-p) #theoretical variance for each X_i
+sigma2/5 #theoretical variance for xbar. Should be similar to empirical variance
+
+#Sample size 50:
+for (i in 1:500) {
+  sample50 = rbinom(50, n, p)
+  binom_x_bar_list50[i] = mean(sample50)
+}
+mean(binom_x_bar_list50) #empirical mean (from sampling)
+expectedValue = n*p #theoretical expected
+expectedValue
+var(binom_x_bar_list50) #empirical variance
+sigma2 = n*p*(1-p) #theoretical variance for each X_i
+sigma2/50 #theoretical variance for xbar. Should be similar to empirical variance
+
+hist(binom_x_bar_list5)
+qqnorm(binom_x_bar_list5)
+hist(binom_x_bar_list50)
+qqnorm(binom_x_bar_list50)
+
+#I've found that the empirical mean and variance of the x_bar list sampling of 5 and 50 are quite close to the theoretical mean and variance. However, the empirical variance seems to have a bit of deviation from the theoretical value. A feature to be noted is that larger sample (i.e. sample size 50 compared to 5) will have a more symmetrical bell shaped histogram or a normal distribution (CLT), while a smaller sample will be more skewed shaped.
+```
+
+```{r}
+#Exponential distribution with λ = 5
+#Sample size 5:
+lambda = 5
+exp_x_bar_list5 = rep(0,500)
+exp_x_bar_list50 = rep(0,500)
+
+for (i in 1:500) {
+  sample5 = rexp(5, lambda)
+  exp_x_bar_list5[i] = mean(sample5)
+}
+mean(exp_x_bar_list5) #empirical mean (from sampling)
+expectedValue = 1/lambda #theoretical expected
+expectedValue
+var(exp_x_bar_list5) #empirical variance
+sigma2 = 1/lambda^2 #theoretical variance for each X_i
+sigma2/5 #theoretical variance for xbar. Should be similar to empirical variance
+
+#Sample size 50:
+for (i in 1:500) {
+  sample50 = rexp(50, lambda)
+  exp_x_bar_list50[i] = mean(sample50)
+}
+mean(exp_x_bar_list50) #empirical mean (from sampling)
+expectedValue = 1/lambda #theoretical expected
+expectedValue
+var(exp_x_bar_list50) #empirical variance
+sigma2 = 1/lambda^2 #theoretical variance for each X_i
+sigma2/50 #theoretical variance for xbar. Should be similar to empirical variance (8e-04 is 0.0008)
+
+hist(exp_x_bar_list5)
+qqnorm(exp_x_bar_list5)
+hist(exp_x_bar_list50)
+qqnorm(exp_x_bar_list50)
+
+#I've found that the empirical mean and variance of the x_bar list sampling of 5 and 50 are quite close to the theoretical mean and variance. A feature to be noted is that larger sample (i.e. sample size 50 compared to 5) will have a histogram that resembles a bell shaped or a normal distribution (CLT), while a smaller sample will be skewed to the right.
+```
+
+```{r}
+#Poisson distribution with parameter μ = 2
+#Sample size 5:
+mu = 2
+pois_x_bar_list5 = rep(0,500)
+pois_x_bar_list50 = rep(0,500)
+
+for (i in 1:500) {
+  sample5 = rpois(5, mu)
+  pois_x_bar_list5[i] = mean(sample5)
+}
+mean(pois_x_bar_list5) #empirical mean (from sampling)
+expectedValue = mu #theoretical expected
+expectedValue
+var(pois_x_bar_list5) #empirical variance
+sigma2 = mu #theoretical variance for each X_i
+sigma2/5 #theoretical variance for xbar. Should be similar to empirical variance
+
+#Sample size 50:
+for (i in 1:500) {
+  sample50 = rpois(5, mu)
+  pois_x_bar_list50[i] = mean(sample50)
+}
+mean(pois_x_bar_list50) #empirical mean (from sampling)
+expectedValue = mu #theoretical expected
+expectedValue
+var(pois_x_bar_list50) #empirical variance
+sigma2 = mu #theoretical variance for each X_i
+sigma2/50 #theoretical variance for xbar. Should be similar to empirical variance
+
+hist(pois_x_bar_list5)
+qqnorm(pois_x_bar_list5)
+hist(pois_x_bar_list50)
+qqnorm(pois_x_bar_list50)
+
+#I've found that the empirical mean and variance of the x_bar list sampling of 5 and 50 are quite close to the theoretical mean and variance. A feature to be noted is that larger sample (i.e. sample size 50 compared to 5) will have a histogram that resembles a bell shaped or a normal distribution (CLT), while a smaller sample will be a tad skewed with a tall peak. Although a larger sample still have a tall peek, it is more balanced out to resemble a bell shape.
+```

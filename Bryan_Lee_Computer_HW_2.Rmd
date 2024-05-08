@@ -1,0 +1,128 @@
+---
+title: "MATH 324 Computer HW 2"
+author: "Bryan Lee"
+date: "April 9 2024"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+#Exercise 1: A lab network consisting of 15 computers was attacked by a computer virus. This virus enters each computer with probability 0.20, independently of other computers. Use R commands to answers the following questions.
+
+#(a) Find the probability that the virus enters exactly 4 computers. P(X=4)
+```{r}
+dbinom(4, 15, 0.2)
+```
+
+#(b) Find the probability that the virus enters at most 4 computers. P(X <= 4)
+```{r}
+pbinom(4, 15, 0.2)
+```
+
+#(c) Find the probability that the virus enters at least 4 computers. P(X >= 4) = 1-P(X <= 3)
+```{r}
+1-pbinom(3, 15, 0.2)
+```
+
+#(d) Find the probability that the virus enters more than 4 computers. P(X > 4) = 1 - P(X <= 4)
+```{r}
+1-pbinom(4, 15, 0.2)
+```
+
+#(e) Find the probability that number of computers among the 15 that involve virus attack exceeds the expected number by more than one standard deviation, i.e., P (X > E(X) + SD(X)).
+```{r}
+ex <- 15 * 0.2 #E(X) = np
+varx <- ex * (1 - 0.2) #Var(X) = np(1-p) = E(x) * (1-p)
+sdx <- sqrt(varx)
+1-pbinom(ex + sdx, 15, 0.2)
+```
+
+#Exercise 2: A voting district has 205 female voters and 195 male voters. A random sample of 15 voters is drawn. Use R commands to answer the following questions.
+
+#(a) What is the probability exactly 7 of the voters will be female? P(X=7)
+```{r}
+n <- 15 #sample size
+N <- 205+195
+M <- 205 # of female voters
+dhyper(7, M, N-M, n)
+```
+
+#(b) What is the probability that at most 7 of the voters will be female? P(X <= 7)
+```{r}
+n <- 15 #sample size
+N <- 205+195
+M <- 205 # of female voters
+phyper(7, M, N-M, n)
+```
+
+#(c) If a binomial approximation is appropriate, use it to answer (a) again and compare the answers.
+#Since n/N <= 0.5 we can use binomial approximation
+```{r}
+n <- 15 #sample size
+N <- 205+195
+M <- 205 # of female voters
+p <- M/N
+dbinom(7,n,p)
+```
+#The binomial approximation is quite close to the binomial probability with about a 0.003 difference.
+
+#(d) If a binomial approximation is appropriate, use it to answer (b) again and compare the answers.
+#Since n/N <= 0.5 we can use binomial approximation
+```{r}
+n <- 15 #sample size
+N <- 205+195
+M <- 205 # of female voters
+p <- M/N
+pbinom(7,n,p)
+```
+#The binomial approximation seems to have a large difference from the binomial probability with about 0.0007 difference
+
+#Exercise 3: Bob is a high school basketball player. He is a 50% free throw shooter. That means his probability of making a free throw is 0.50. Use R commands to answer the following questions.
+
+#(a) During the season, what is the probability that Bob makes his second free throw on his fifth shot?
+#X~NB(r=2, p=0.5) where P(X=3) where X: # of failure before 2nd success
+```{r}
+dnbinom(3, 2, 0.5)
+```
+
+#(b) What is the probability that Bob makes his first free throw on his third shot?
+#X~NB(r=1, p=0.5) where P(X=2) where X: # of failure before 1st success
+```{r}
+dnbinom(2, 1, 0.5)
+```
+
+#Exercise 4: An article in the Los Angeles Times (Dec. 3, 1993) reports that 1 in 500 people carry the defective gene that causes inherited colon cancer. In a sample of 2000 individuals, we are interested in the number of individuals who carry this gene. Typically binomial distribution can be used to model this number. However, in the case of large n and small p, we can use Poisson distribution approximately. Answer the following questions using R commands.
+
+#(a) Use binomial distribution to calculate the the probability that between 6 and 9 (inclusive) carry the gene.
+#P(6 <= X <= 9) = F(9)-F(6-) = F(9)-F(5) = 
+```{r}
+n <- 2000
+p <- 1/500
+pbinom(9, n, p) - pbinom(5, n, p)
+```
+
+#(b) Use binomial distribution to calculate the the probability that at most 8 carry the gene. P(X <= 8)
+```{r}
+n <- 2000
+p <- 1/500
+pbinom(8, n, p)
+```
+
+#(c) Use Poisson distribution to recalculate the approximated probability for part(a) and make comparison.
+```{r}
+n <- 2000
+p <- 1/500
+ex = n * p #E(x) = mu = np
+ppois(9, ex) - ppois(5, ex)
+```
+#The Poisson distribution is quite similar to the binomial distribution with only about 0.0001 difference.
+
+#(d) Use Poisson distribution to recalculate the approximated probability for part(b) and make comparison.
+```{r}
+n <- 2000
+p <- 1/500
+ex = n * p #E(x) = mu = np
+ppois(8, ex)
+```
+#The Poisson distribution is quite similar to the binomial distribution with only about 0.0001 difference.
