@@ -1,0 +1,157 @@
+---
+title: "Bryan_Lee_Computer_HW_4"
+author: "Bryan Lee"
+date: "2024-05-16"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+#Exercise 1: A company with a large fleet of cars wants to study the gasoline usage. They check the gasoline usage for 50 company trips chosen at random, finding a mean of 25.16 mpg. Based on the past experience, they believe that the gasoline usage is normally distributed and the standard deviation of the general gasoline usage is 4.82 mpg
+
+#(a) Which kind of confidence intervals is appropriate to use here, z-interval or t-interval?
+#z-interval as standard deviation is known and n>40.
+
+#(b) Please use R to find the critical value they need when constructing a 90% CI.
+```{r}
+n = 50
+sd = 4.82
+x_bar = 25.16
+
+qnorm(1-((1-0.90)/2))
+```
+#(c) Please use R to construct a 90% CI for the mean of the general gasoline usage.
+```{r}
+n = 50
+sd = 4.82
+x_bar = 25.16
+
+#Lower bound
+x_bar-qnorm(1-((1-0.90)/2)) * (sd/sqrt(n))
+
+#Upper bound
+x_bar+qnorm(1-((1-0.90)/2)) * (sd/sqrt(n))
+```
+
+#(d) If they want to control the width of CI to be within 0.60 mpg, at least how many trips do they have to sample? Use R to calculate.
+```{r}
+w = 0.60
+sd = 4.82
+n = ((2*qnorm(1-((1-0.90)/2)) * sd)/w)^2
+ceiling(n) #For rounding to the next int
+```
+
+#(e) Create a R function whose argument is the width of CI, and the output is the sample size necessary to achieve such accuracy. Confidence level is fixed at 90%.
+```{r}
+sample_size_for_CI = function(width) {
+  CI = 0.9
+  sd = 4.82
+  
+  z_crit = qnorm(1-((1-CI)/2))
+  n = ((2 * z_crit * sd)/width)^2
+  return(ceiling(n))
+}
+
+```
+
+#(f) Apply the function you created in part (e) to demonstrate that larger sample size is required to achieve better accuracy (i.e, narrower CI width). Confidence level is fixed at 90%.
+```{r}
+sd = 4.82
+x_bar = 25.16
+
+#small sample & wider CI width
+n = sample_size_for_CI(0.6)
+n
+#Lower bound
+x_bar-qnorm(1-((1-0.90)/2)) * (sd/sqrt(n))
+
+#Upper bound
+x_bar+qnorm(1-((1-0.90)/2)) * (sd/sqrt(n))
+
+#large sample & narrower CI width
+n = sample_size_for_CI(0.1)
+n
+#Lower bound
+x_bar-qnorm(1-((1-0.90)/2)) * (sd/sqrt(n))
+
+#Upper bound
+x_bar+qnorm(1-((1-0.90)/2)) * (sd/sqrt(n))
+```
+
+#Exercise 2: In a class survey, students are asked how many hours they sleep per night. In the sample of 21 students, the mean was 5.87 hours with a standard deviation of 1.56 hours. The parameter of interest is the mean number of hours slept per night in the population from which this sample was drawn.
+
+#(a) Which kind of confidence intervals is appropriate to use here, z-interval or t-interval?
+#z-interval as standard deviation is known.
+
+#(b) Please use R to find the critical value they need when constructing a 98% CI.
+```{r}
+qnorm(1-((1-0.98)/2))
+```
+
+#(c) Please use R to construct a 98% CI for the mean number of hours slept per night.
+```{r}
+n = 21
+x_bar = 5.87
+sd = 1.56
+
+#Lower bound
+x_bar-qnorm(1-((1-0.98)/2)) * (sd/sqrt(n))
+
+#Upper bound
+x_bar+qnorm(1-((1-0.98)/2)) * (sd/sqrt(n))
+```
+
+#Exercise 3: In the year 2001 Youth Risk Behavior survey done by the U.S. Centers for Disease Control, 750 out of 1200 female 12th graders said they always use a seatbelt when driving.
+
+a) We want to construct confidence interval to estimate the proportion of 12th grade females in the U.S. population who always use a seatbelt when driving. Is it it appropriate to use traditional confidence interval? Why or why not?
+#It is appropriate to use traditional confidence interval because this situation is case 2 where standard deviation is unknown, n > 40, and needed to calculate population proportion.
+
+#b) If answer ”Yes” in part (a), use R to find the 99% traditional CI for the proportion of 12th grade females in the population who always use a seatbelt when driving.
+```{r}
+n = 1200
+p_hat = 750/1200
+
+#Lower bound
+p_hat-qnorm(1-((1-0.99)/2)) * sqrt((p_hat*(1-p_hat))/n)
+
+#Upper bound
+p_hat+qnorm(1-((1-0.99)/2)) * sqrt((p_hat*(1-p_hat))/n)
+```
+#(c) Assuming there is no prior information or past experience available, what is the sample size necessary to control the traditional 99% CI width to be within 0.01.
+```{r}
+p_hat = 1/2 #no prior info so 1/2 as per notes.
+z = qnorm(1-((1-0.99)/2))
+n = (4 * (z^2) * p_hat * (1-p_hat))/(0.01^2)
+ceiling(n)
+```
+
+#Exercise 4: Consider the problem in Exercise 1 again. The company wants to conduct a test, with α = 0.05, to see whether the fleet average is less than 26 mpg.
+
+#(a) Which kind of tests is appropriate to use here, z-test or t-test?
+#z-interval as standard deviation is known and n>40. (exercise 1)
+
+#(b) Write appropriate hypotheses. Is the alternative hypothesis one-sided or two-sided?
+#We want to test mu = 26 where the alternative hypothesis to test is mu < 26 (one-sided).
+
+#(c) Use R to compute the test statistic and construct rejection region. Make conclusion using the test statistic and rejection region.
+```{r}
+test_stat = (25.16 - 26)/(4.82/sqrt(50))
+rej_region = c(-Inf, qnorm(0.05))
+
+test_stat
+rej_region
+
+test_stat < qnorm(0.05)
+#Conclusion: False, so test_stat does not lie within the rejection region, so we retain H0. 
+```
+
+(d) Use R to compute p-value. Make conclusion using p-value. Is it consistent with the conclusion in part (c)?
+```{r}
+alpha = 0.05
+p_val = pnorm(test_stat)
+p_val
+
+p_val < alpha
+#Conclusion: False, so retain H0, which is consistent with the conclusion from part c.
+```
